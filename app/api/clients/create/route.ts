@@ -11,7 +11,11 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const parsed = ClientCreateSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+    console.error("Client validation error:", parsed.error.format());
+    const errorMessage = Object.entries(parsed.error.flatten().fieldErrors)
+      .map(([key, errors]) => `${key}: ${errors?.join(", ")}`)
+      .join(" | ");
+    return NextResponse.json({ error: `Invalid input: ${errorMessage}` }, { status: 400 });
   }
 
   const d = parsed.data;
