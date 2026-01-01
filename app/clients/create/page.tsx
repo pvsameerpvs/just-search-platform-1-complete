@@ -134,265 +134,412 @@ export default function CreateClientPage() {
     }
   };
 
+  // --- UI HELPERS ---
+  const currentStepLabel = ["Client Info", "Package & Pricing", "Review"][step - 1];
+  
   return (
     <AppShell title="Create Client">
-      <Card>
-        <CardHeader>
-          <div className="text-jsBlack-900 font-semibold">Client Registration</div>
-          <div className="text-gray-500 text-sm">Step {step} of 3</div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            {/* STEP 1: Basic Info */}
-            {step === 1 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <Label>Company Name *</Label>
-                  <Input {...register("companyName")} placeholder="Company Name" />
-                  {errors.companyName && <p className="text-red-500 text-xs">{errors.companyName.message}</p>}
+      <div className="max-w-5xl mx-auto space-y-8">
+        
+        {/* STEPPER */}
+        <div className="flex items-center justify-center w-full">
+          <div className="relative flex items-center justify-between w-full max-w-2xl">
+            {/* Connecting Line */}
+            <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-1 bg-gray-200 -z-10 rounded"></div>
+            <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-1 bg-jsOrange-500 -z-10 rounded transition-all duration-300"
+                 style={{ width: `${(step - 1) * 50}%` }}></div>
+
+            {[1, 2, 3].map((s) => {
+              const isActive = s <= step;
+              return (
+                <div key={s} className="flex flex-col items-center gap-2 bg-white px-2">
+                  <div className={`flex items-center justify-center w-10 h-10 rounded-full text-sm font-bold border-2 transition-colors duration-300 ${
+                    isActive ? "bg-jsOrange-500 border-jsOrange-500 text-white" : "bg-white border-gray-300 text-gray-400"
+                  }`}>
+                    {s}
+                  </div>
+                  <span className={`text-xs font-medium ${isActive ? "text-jsBlack-900" : "text-gray-400"}`}>
+                    {["Client Details", "Lead Package", "Review & Save"][s - 1]}
+                  </span>
                 </div>
-                <div className="md:col-span-2">
-                  <Label>Industry *</Label>
-                  <select
-                    {...register("industry")}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <option value="">Select Industry</option>
-                    {industryPricing.map((item) => (
-                      <option key={item.name} value={item.name}>{item.name}</option>
-                    ))}
-                  </select>
-                  {errors.industry && <p className="text-red-500 text-xs">{errors.industry.message}</p>}
-                </div>
-                <div className="md:col-span-2">
-                  <Label>Contact Person *</Label>
-                  <Input {...register("contactPerson")} placeholder="Full Name" />
-                  {errors.contactPerson && <p className="text-red-500 text-xs">{errors.contactPerson.message}</p>}
-                </div>
-                <div>
-                  <Label>Contact Number *</Label>
-                  <Input {...register("contactNumber")} placeholder="+971..." />
-                  {errors.contactNumber && <p className="text-red-500 text-xs">{errors.contactNumber.message}</p>}
-                </div>
-                <div>
-                  <Label>Email ID *</Label>
-                  <Input {...register("email")} placeholder="example@email.com" />
-                  {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
-                </div>
-                <div>
-                  <Label>WhatsApp *</Label>
-                  <Input {...register("whatsapp")} placeholder="+971..." />
-                  {errors.whatsapp && <p className="text-red-500 text-xs">{errors.whatsapp.message}</p>}
-                </div>
-                <div>
-                  <Label>Username *</Label>
-                  <Input {...register("username")} placeholder="client_username" />
-                  {errors.username && <p className="text-red-500 text-xs">{errors.username.message}</p>}
-                </div>
-                <div>
-                  <Label>Password *</Label>
-                  <Input type="password" {...register("password")} placeholder="******" />
-                  {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
-                </div>
-                <div>
-                  <Label>Area *</Label>
-                  <select
-                    {...register("location")}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <option value="">Select Area</option>
-                    {areaPricing.map((item) => (
-                      <option key={item.name} value={item.name}>{item.name}</option>
-                    ))}
-                  </select>
-                  {errors.location && <p className="text-red-500 text-xs">{errors.location.message}</p>}
-                </div>
-                <div className="md:col-span-2 flex justify-end">
-                  <Button type="button" onClick={onNextStep}>Next</Button>
-                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <Card className="shadow-lg border-t-4 border-t-jsOrange-500">
+          <CardHeader className="border-b border-gray-100 pb-4 mb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-jsBlack-900">New Client Registration</h2>
+                <p className="text-gray-500 text-sm mt-1">
+                  Complete the form below to create a client account. Step {step} of 3: <span className="text-jsOrange-600 font-medium">{currentStepLabel}</span>
+                </p>
               </div>
-            )}
-
-            {/* STEP 2: Pricing & Details */}
-            {step === 2 && (
-              <div className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Select Industries (Multi Select)</Label>
-                    <div className="mt-2 space-y-2">
-                      <Controller
-                        control={control}
-                        name="industries"
-                        render={({ field }) => (
-                          <>
-                            {industryPricing.map((it) => (
-                              <label key={it.name} className="flex items-center gap-2 text-gray-700 text-sm">
-                                <input
-                                  type="checkbox"
-                                  checked={field.value.includes(it.name)}
-                                  onChange={(e) => {
-                                    const newVal = e.target.checked
-                                      ? [...field.value, it.name]
-                                      : field.value.filter((x) => x !== it.name);
-                                    field.onChange(newVal);
-                                  }}
-                                />
-                                <span className="flex-1">{it.name}</span>
-                                <span className="text-gray-500">AED {it.price.toFixed(2)}</span>
-                              </label>
-                            ))}
-                          </>
-                        )}
-                      />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              
+              {/* STEP 1: Basic Info */}
+              {step === 1 && (
+                <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Company */}
+                    <div className="md:col-span-2 space-y-2">
+                      <Label className="text-base font-semibold">Company Name</Label>
+                      <Input {...register("companyName")} placeholder="e.g. Acme Real Estate LLC" className="h-11" />
+                      {errors.companyName && <p className="text-red-500 text-xs font-medium">{errors.companyName.message}</p>}
                     </div>
-                    {errors.industries && <p className="text-red-500 text-xs">{errors.industries.message}</p>}
+
+                    {/* Industry & Area (Dropdowns) */}
+                    <div className="space-y-2">
+                      <Label className="font-semibold">Industry</Label>
+                      <select
+                        {...register("industry")}
+                        className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jsOrange-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <option value="">Select Industry...</option>
+                        {industryPricing.map((item) => (
+                          <option key={item.name} value={item.name}>{item.name}</option>
+                        ))}
+                      </select>
+                      {errors.industry && <p className="text-red-500 text-xs font-medium">{errors.industry.message}</p>}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="font-semibold">Area / Location</Label>
+                      <select
+                        {...register("location")}
+                        className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jsOrange-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <option value="">Select Area...</option>
+                        {areaPricing.map((item) => (
+                          <option key={item.name} value={item.name}>{item.name}</option>
+                        ))}
+                      </select>
+                      {errors.location && <p className="text-red-500 text-xs font-medium">{errors.location.message}</p>}
+                    </div>
+
+                    {/* Contact Person */}
+                    <div className="md:col-span-2 space-y-2">
+                       <Label className="font-semibold">Contact Person</Label>
+                       <Input {...register("contactPerson")} placeholder="Full Name" className="h-11" />
+                       {errors.contactPerson && <p className="text-red-500 text-xs font-medium">{errors.contactPerson.message}</p>}
+                    </div>
+                    
+                    {/* Contact Details */}
+                    <div className="space-y-2">
+                      <Label className="font-semibold">Mobile Number</Label>
+                      <Input {...register("contactNumber")} placeholder="+971 50 123 4567" className="h-11" />
+                      {errors.contactNumber && <p className="text-red-500 text-xs font-medium">{errors.contactNumber.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="font-semibold">WhatsApp</Label>
+                      <Input {...register("whatsapp")} placeholder="+971 50 123 4567" className="h-11" />
+                      {errors.whatsapp && <p className="text-red-500 text-xs font-medium">{errors.whatsapp.message}</p>}
+                    </div>
+
+                    <div className="md:col-span-2 space-y-2">
+                      <Label className="font-semibold">Email Address</Label>
+                      <Input {...register("email")} placeholder="name@company.com" className="h-11" />
+                      {errors.email && <p className="text-red-500 text-xs font-medium">{errors.email.message}</p>}
+                    </div>
+
+                    {/* Account Access */}
+                    <div className="space-y-2">
+                      <Label className="font-semibold">Username</Label>
+                      <Input {...register("username")} placeholder="Create a username" className="h-11" />
+                      {errors.username && <p className="text-red-500 text-xs font-medium">{errors.username.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="font-semibold">Password</Label>
+                      <Input type="password" {...register("password")} placeholder="••••••" className="h-11" />
+                      {errors.password && <p className="text-red-500 text-xs font-medium">{errors.password.message}</p>}
+                    </div>
+
                   </div>
-
-                  <div>
-                    <Label>Select Areas (Multi Select)</Label>
-                    <div className="mt-2 space-y-2">
-                      <Controller
-                        control={control}
-                        name="areas"
-                        render={({ field }) => (
-                          <>
-                            {areaPricing.map((it) => (
-                              <label key={it.name} className="flex items-center gap-2 text-gray-700 text-sm">
-                                <input
-                                  type="checkbox"
-                                  checked={field.value.includes(it.name)}
-                                  onChange={(e) => {
-                                    const newVal = e.target.checked
-                                      ? [...field.value, it.name]
-                                      : field.value.filter((x) => x !== it.name);
-                                    field.onChange(newVal);
-                                  }}
-                                />
-                                <span className="flex-1">{it.name}</span>
-                                <span className="text-gray-500">x {it.price.toFixed(2)}</span>
-                              </label>
-                            ))}
-                          </>
-                        )}
-                      />
-                    </div>
-                    {errors.areas && <p className="text-red-500 text-xs">{errors.areas.message}</p>}
+                  
+                  <div className="mt-8 flex justify-end">
+                    <Button type="button" onClick={onNextStep} className="bg-jsOrange-500 hover:bg-jsOrange-600 px-8 h-12 text-base shadow-md">
+                      Next Step &rarr;
+                    </Button>
                   </div>
                 </div>
+              )}
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label>Number of Leads *</Label>
-                    <Input
-                      type="number"
-                      {...register("leadQty", { valueAsNumber: true })}
-                    />
-                    {errors.leadQty && <p className="text-red-500 text-xs">{errors.leadQty.message}</p>}
+              {/* STEP 2: Pricing & Details */}
+              {step === 2 && (
+                <div className="animate-in fade-in slide-in-from-right-4 duration-300 space-y-8">
+                  
+                  {/* Multi-Select Grids */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Industries */}
+                    <div className="border rounded-lg p-4 bg-gray-50/50">
+                      <Label className="text-lg font-bold mb-3 block text-jsBlack-800">Target Industries</Label>
+                      <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                        <Controller
+                          control={control}
+                          name="industries"
+                          render={({ field }) => (
+                            <>
+                              {industryPricing.map((it) => {
+                                const isSelected = field.value.includes(it.name);
+                                return (
+                                  <label key={it.name} 
+                                    className={`flex items-center justify-between p-3 rounded-md border cursor-pointer transition-all hover:border-jsOrange-300 ${
+                                      isSelected ? "border-jsOrange-500 bg-orange-50" : "border-gray-200 bg-white"
+                                    }`}>
+                                    <div className="flex items-center gap-3">
+                                      <input
+                                        type="checkbox"
+                                        className="w-4 h-4 text-jsOrange-600 rounded focus:ring-jsOrange-500"
+                                        checked={isSelected}
+                                        onChange={(e) => {
+                                          const newVal = e.target.checked
+                                            ? [...field.value, it.name]
+                                            : field.value.filter((x) => x !== it.name);
+                                          field.onChange(newVal);
+                                        }}
+                                      />
+                                      <span className="font-medium text-sm">{it.name}</span>
+                                    </div>
+                                    <span className="text-xs font-semibold bg-gray-100 px-2 py-1 rounded text-gray-600">AED {it.price.toFixed(0)}</span>
+                                  </label>
+                                );
+                              })}
+                            </>
+                          )}
+                        />
+                      </div>
+                      {errors.industries && <p className="text-red-500 text-xs mt-2">{errors.industries.message}</p>}
+                    </div>
+
+                    {/* Areas */}
+                    <div className="border rounded-lg p-4 bg-gray-50/50">
+                      <Label className="text-lg font-bold mb-3 block text-jsBlack-800">Target Areas</Label>
+                      <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                        <Controller
+                          control={control}
+                          name="areas"
+                          render={({ field }) => (
+                            <>
+                              {areaPricing.map((it) => {
+                                const isSelected = field.value.includes(it.name);
+                                return (
+                                  <label key={it.name} 
+                                      className={`flex items-center justify-between p-3 rounded-md border cursor-pointer transition-all hover:border-jsOrange-300 ${
+                                        isSelected ? "border-jsOrange-500 bg-orange-50" : "border-gray-200 bg-white"
+                                      }`}>
+                                      <div className="flex items-center gap-3">
+                                        <input
+                                          type="checkbox"
+                                          className="w-4 h-4 text-jsOrange-600 rounded focus:ring-jsOrange-500"
+                                          checked={isSelected}
+                                          onChange={(e) => {
+                                            const newVal = e.target.checked
+                                              ? [...field.value, it.name]
+                                              : field.value.filter((x) => x !== it.name);
+                                            field.onChange(newVal);
+                                          }}
+                                        />
+                                        <span className="font-medium text-sm">{it.name}</span>
+                                      </div>
+                                      <span className="text-xs font-semibold bg-gray-100 px-2 py-1 rounded text-gray-600">x{it.price.toFixed(2)}</span>
+                                    </label>
+                                );
+                              })}
+                            </>
+                          )}
+                        />
+                      </div>
+                      {errors.areas && <p className="text-red-500 text-xs mt-2">{errors.areas.message}</p>}
+                    </div>
                   </div>
 
-                  <div>
-                    <Label>Marketing Channel</Label>
-                    <div className="mt-2 space-y-2 text-gray-700 text-sm">
-                      <Controller
-                        control={control}
-                        name="channels"
-                        render={({ field }) => (
-                          <>
-                            <label className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                checked={field.value.includes("whatsapp")}
-                                onChange={(e) => {
-                                  const newVal = e.target.checked
-                                    ? [...field.value, "whatsapp"]
-                                    : field.value.filter((x) => x !== "whatsapp");
-                                  field.onChange(newVal);
-                                }}
+                  <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                     <h3 className="text-base font-semibold mb-4 border-b pb-2">Volume & Channels</h3>
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="space-y-2">
+                           <Label>Lead Quantity</Label>
+                           <Input type="number" {...register("leadQty", { valueAsNumber: true })} className="h-10" />
+                           {errors.leadQty && <p className="text-red-500 text-xs">{errors.leadQty.message}</p>}
+                        </div>
+
+                        <div className="space-y-2">
+                           <Label>Channels</Label>
+                           <div className="flex flex-col gap-2 mt-2">
+                              <Controller
+                                 control={control}
+                                 name="channels"
+                                 render={({ field }) => (
+                                    <>
+                                       <label className="flex items-center gap-2 cursor-pointer">
+                                          <input
+                                             type="checkbox"
+                                             className="rounded text-jsOrange-600 focus:ring-jsOrange-500"
+                                             checked={field.value.includes("whatsapp")}
+                                             onChange={(e) => {
+                                                const newVal = e.target.checked ? [...field.value, "whatsapp"] : field.value.filter((x) => x !== "whatsapp");
+                                                field.onChange(newVal);
+                                             }}
+                                          />
+                                          <span className="text-sm">WhatsApp (+0.50)</span>
+                                       </label>
+                                       <label className="flex items-center gap-2 cursor-pointer">
+                                          <input
+                                             type="checkbox"
+                                             className="rounded text-jsOrange-600 focus:ring-jsOrange-500"
+                                             checked={field.value.includes("email")}
+                                             onChange={(e) => {
+                                                const newVal = e.target.checked ? [...field.value, "email"] : field.value.filter((x) => x !== "email");
+                                                field.onChange(newVal);
+                                             }}
+                                          />
+                                          <span className="text-sm">Email (+0.30)</span>
+                                       </label>
+                                    </>
+                                 )}
                               />
-                              WhatsApp (+0.50/lead)
-                            </label>
-                            <label className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                checked={field.value.includes("email")}
-                                onChange={(e) => {
-                                  const newVal = e.target.checked
-                                    ? [...field.value, "email"]
-                                    : field.value.filter((x) => x !== "email");
-                                  field.onChange(newVal);
-                                }}
-                              />
-                              Email (+0.30/lead)
-                            </label>
-                          </>
-                        )}
-                      />
-                    </div>
-                    {errors.channels && <p className="text-red-500 text-xs">{errors.channels.message}</p>}
+                           </div>
+                           {errors.channels && <p className="text-red-500 text-xs">{errors.channels.message}</p>}
+                        </div>
+
+                        <div className="space-y-2">
+                           <Label>Discount (%)</Label>
+                           <Input type="number" {...register("discountPercent", { valueAsNumber: true })} className="h-10" />
+                           {errors.discountPercent && <p className="text-red-500 text-xs">{errors.discountPercent.message}</p>}
+                        </div>
+                     </div>
                   </div>
 
-                  <div>
-                    <Label>Discount Available (%)</Label>
-                    <Input
-                      type="number"
-                      {...register("discountPercent", { valueAsNumber: true })}
-                    />
-                     {errors.discountPercent && <p className="text-red-500 text-xs">{errors.discountPercent.message}</p>}
+                  {/* Price Summary Stickyish */}
+                  <div className="rounded-xl border border-gray-200 bg-gray-900 text-white p-6 shadow-md">
+                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div>
+                           <div className="text-xs text-gray-400 uppercase tracking-wider">Per Lead</div>
+                           <div className="text-xl font-bold">AED {total.perLead.toFixed(2)}</div>
+                        </div>
+                        <div>
+                           <div className="text-xs text-gray-400 uppercase tracking-wider">Subtotal</div>
+                           <div className="text-xl font-bold">AED {total.gross.toFixed(2)}</div>
+                        </div>
+                        <div>
+                           <div className="text-xs text-gray-400 uppercase tracking-wider">Discount</div>
+                           <div className="text-xl font-bold text-red-400">- {total.disc.toFixed(2)}</div>
+                        </div>
+                        <div className="border-l border-gray-700 pl-4">
+                           <div className="text-xs text-jsOrange-400 uppercase tracking-wider font-bold">Final Total</div>
+                           <div className="text-2xl font-black text-jsOrange-500">AED {total.net.toFixed(2)}</div>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div className="flex justify-between pt-4">
+                    <Button type="button" variant="secondary" onClick={() => setStep(1)} className="h-12 px-6">Back</Button>
+                    <Button type="button" onClick={onNextStep} className="bg-jsOrange-500 hover:bg-jsOrange-600 h-12 px-8 text-base shadow-md">Next Step &rarr;</Button>
                   </div>
                 </div>
+              )}
 
-                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-gray-700 text-sm">
-                  <div className="flex justify-between"><span>Price / Lead</span><b className="text-jsBlack-900">AED {total.perLead.toFixed(2)}</b></div>
-                  <div className="flex justify-between"><span>Total Price</span><b className="text-jsBlack-900">AED {total.gross.toFixed(2)}</b></div>
-                  <div className="flex justify-between"><span>Discount</span><b className="text-jsBlack-900">- AED {total.disc.toFixed(2)}</b></div>
-                  <div className="flex justify-between border-t border-gray-200 mt-2 pt-2"><span>Final Price</span><b className="text-jsBlack-900">AED {total.net.toFixed(2)}</b></div>
-                </div>
+              {/* STEP 3: Review */}
+              {step === 3 && (
+                <div className="animate-in fade-in slide-in-from-right-4 duration-300 space-y-6">
+                  
+                   <div className="rounded-xl border border-gray-200 overflow-hidden">
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                         <h3 className="font-bold text-lg text-jsBlack-900">Summary Review</h3>
+                         <p className="text-gray-500 text-sm">Please verify all details before submitting.</p>
+                      </div>
+                      
+                      <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                         <div>
+                            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Client Profile</h4>
+                            <div className="space-y-3 text-sm">
+                               <div className="flex justify-between border-b border-gray-100 pb-1">
+                                  <span className="text-gray-500">Company</span>
+                                  <span className="font-medium">{watch("companyName")}</span>
+                               </div>
+                               <div className="flex justify-between border-b border-gray-100 pb-1">
+                                  <span className="text-gray-500">Contact Person</span>
+                                  <span className="font-medium">{watch("contactPerson")}</span>
+                               </div>
+                               <div className="flex justify-between border-b border-gray-100 pb-1">
+                                  <span className="text-gray-500">Username</span>
+                                  <span className="font-medium font-mono bg-gray-100 px-1 rounded">{watch("username")}</span>
+                               </div>
+                               <div className="flex justify-between border-b border-gray-100 pb-1">
+                                  <span className="text-gray-500">Email</span>
+                                  <span className="font-medium">{watch("email")}</span>
+                               </div>
+                               <div className="flex justify-between border-b border-gray-100 pb-1">
+                                  <span className="text-gray-500">WhatsApp</span>
+                                  <span className="font-medium">{watch("whatsapp")}</span>
+                               </div>
+                               <div className="flex justify-between border-b border-gray-100 pb-1">
+                                  <span className="text-gray-500">Area/Loc</span>
+                                  <span className="font-medium">{watch("location")}</span>
+                               </div>
+                               <div className="flex justify-between border-b border-gray-100 pb-1">
+                                  <span className="text-gray-500">Industry</span>
+                                  <span className="font-medium">{watch("industry")}</span>
+                               </div>
+                            </div>
+                         </div>
 
-                <div className="flex justify-between">
-                  <Button type="button" variant="secondary" onClick={() => setStep(1)}>Back</Button>
-                  <Button type="button" onClick={onNextStep}>Next</Button>
-                </div>
-              </div>
-            )}
+                         <div>
+                            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Package Configuration</h4>
+                            <div className="space-y-3 text-sm">
+                               <div>
+                                  <span className="text-gray-500 block text-xs">Target Industries</span>
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                     {wIndustries.length ? wIndustries.map(i => <span key={i} className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs border border-blue-100">{i}</span>) : "-"}
+                                  </div>
+                               </div>
+                               <div>
+                                  <span className="text-gray-500 block text-xs">Target Areas</span>
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                     {wAreas.length ? wAreas.map(i => <span key={i} className="bg-green-50 text-green-700 px-2 py-0.5 rounded text-xs border border-green-100">{i}</span>) : "-"}
+                                  </div>
+                               </div>
+                               
+                               <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-100">
+                                  <div>
+                                     <span className="text-gray-500 text-xs">Lead Qty</span>
+                                     <div className="font-bold text-lg">{wLeadQty}</div>
+                                  </div>
+                                  <div>
+                                     <span className="text-gray-500 text-xs">Channels</span>
+                                     <div className="font-medium text-sm">{wChannels.join(", ")}</div>
+                                  </div>
+                               </div>
+                            </div>
+                         </div>
+                      </div>
+                      
+                      <div className="bg-gray-900 text-white p-6 flex items-center justify-between">
+                         <div className="flex flex-col">
+                            <span className="text-xs text-gray-400 uppercase">Total Payable</span>
+                            <span className="text-2xl font-bold">AED {total.net.toFixed(2)}</span>
+                         </div>
+                         <div className="text-right">
+                            <div className="text-sm text-gray-400">Includes {wDiscountPercent}% discount</div>
+                            <div className="text-xs text-gray-500">Tax inclusive where applicable</div>
+                         </div>
+                      </div>
+                   </div>
 
-            {/* STEP 3: Review */}
-            {step === 3 && (
-              <div className="space-y-4 text-gray-700 text-sm">
-                <div className="text-jsBlack-900 font-semibold">Review & Confirm</div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <div className="text-gray-500">Client</div>
-                    <div className="text-jsBlack-900">{watch("companyName")}</div>
-                    <div className="text-sm font-medium">{watch("contactPerson")}</div>
-                    <div>{watch("email")}</div>
-                    <div>Username: <b>{watch("username")}</b></div>
-                    <div>{watch("whatsapp")}</div>
-                    <div>{watch("location")}</div>
+                  <div className="flex justify-between pt-4">
+                    <Button type="button" variant="secondary" onClick={() => setStep(2)} className="h-12 px-6">Back</Button>
+                    <Button type="submit" className="bg-jsOrange-500 hover:bg-jsOrange-600 h-12 px-8 text-base shadow-lg w-40">Create Client</Button>
                   </div>
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <div className="text-gray-500">Package</div>
-                    <div>Industries: <b className="text-jsBlack-900">{wIndustries.join(", ") || "-"}</b></div>
-                    <div>Areas: <b className="text-jsBlack-900">{wAreas.join(", ") || "-"}</b></div>
-                    <div>Leads: <b className="text-jsBlack-900">{wLeadQty}</b></div>
-                    <div>Channels: <b className="text-jsBlack-900">{wChannels.join(", ")}</b></div>
-                  </div>
                 </div>
-
-                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                  <div className="flex justify-between"><span>Total</span><b className="text-jsBlack-900">AED {total.gross.toFixed(2)}</b></div>
-                  <div className="flex justify-between"><span>Discount</span><b className="text-jsBlack-900">- AED {total.disc.toFixed(2)}</b></div>
-                  <div className="flex justify-between border-t border-gray-200 mt-2 pt-2"><span>Final Price</span><b className="text-jsBlack-900">AED {total.net.toFixed(2)}</b></div>
-                </div>
-
-                <div className="flex justify-between">
-                  <Button type="button" variant="secondary" onClick={() => setStep(2)}>Back</Button>
-                  <Button type="submit">Create Client</Button>
-                </div>
-              </div>
-            )}
-          </form>
-        </CardContent>
-      </Card>
+              )}
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </AppShell>
   );
 }
+
