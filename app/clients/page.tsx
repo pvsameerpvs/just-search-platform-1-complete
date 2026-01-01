@@ -1,63 +1,130 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/shell/app-shell";
 import Link from "next/link";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
-async function getClients() {
-  const res = await fetch("http://localhost:3000/api/clients/list", { cache: "no-store" }).catch(()=>null);
-  if (!res || !res.ok) return [];
-  const data = await res.json();
-  return data.clients ?? [];
-}
+type Client = {
+  companyName: string;
+  industry: string;
+  contactNumber: string;
+  whatsapp: string;
+  email: string;
+  location: string;
+  createdAt: string;
+};
 
-export default async function ClientsPage() {
-  const clients = await getClients();
+export default function ClientsPage() {
+  const [clients, setClients] = useState<Client[]>([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/clients/list")
+      .then((res) => res.json())
+      .then((data) => {
+         setClients(data.clients || []);
+         setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const filtered = clients.filter((c) => 
+     c.companyName.toLowerCase().includes(search.toLowerCase()) || 
+     c.email.toLowerCase().includes(search.toLowerCase()) ||
+     c.industry.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <AppShell title="Clients">
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-gray-500 text-sm">Manage clients and create new client accounts.</div>
-        <Link className="rounded-md bg-jsOrange-500 px-4 py-2 text-sm text-white hover:bg-jsOrange-600" href="/clients/create">
-          + Create Client
-        </Link>
-      </div>
+    <AppShell title="Client Directory">
+      <div className="flex flex-col gap-6 max-w-6xl mx-auto">
+        
+        {/* Header Actions */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+           <div className="relative w-full sm:w-96">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/></svg>
+              <Input 
+                 placeholder="Search companies, emails, or industries..." 
+                 className="pl-10 bg-white"
+                 value={search}
+                 onChange={(e) => setSearch(e.target.value)}
+              />
+           </div>
+           <Link href="/clients/create">
+              <Button className="bg-jsOrange-500 hover:bg-jsOrange-600 text-white shadow-md">
+                 + Create New Client
+              </Button>
+           </Link>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <div className="text-jsBlack-900 font-semibold">Clients List</div>
-          <div className="text-gray-500 text-sm">Data loaded from Google Sheets</div>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-gray-700">
-              <thead className="text-gray-500">
-                <tr className="border-b border-gray-200">
-                  <th className="py-2 text-left">Company</th>
-                  <th className="py-2 text-left">Industry</th>
-                  <th className="py-2 text-left">Contact</th>
-                  <th className="py-2 text-left">WhatsApp</th>
-                  <th className="py-2 text-left">Email</th>
-                  <th className="py-2 text-left">Location</th>
-                </tr>
-              </thead>
-              <tbody>
-                {clients.length === 0 ? (
-                  <tr><td className="py-4" colSpan={6}>No clients found (add rows in Clients sheet).</td></tr>
-                ) : (
-                  clients.map((c: any, idx: number) => (
-                    <tr key={idx} className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
-                      <td className="py-2">{c.companyName}</td>
-                      <td className="py-2">{c.industry}</td>
-                      <td className="py-2">{c.contactNumber}</td>
-                      <td className="py-2">{c.whatsapp}</td>
-                      <td className="py-2">{c.email}</td>
-                      <td className="py-2">{c.location}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Clients Table Card */}
+        <Card className="shadow-sm">
+           <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                 <table className="w-full text-sm text-left">
+                    <thead className="bg-gray-50 border-b border-gray-100 text-gray-500 uppercase tracking-wider text-xs font-semibold">
+                       <tr>
+                          <th className="px-6 py-4">Company Details</th>
+                          <th className="px-6 py-4">Contact Info</th>
+                          <th className="px-6 py-4">Location</th>
+                          <th className="px-6 py-4 text-right">Actions</th>
+                       </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                       {loading ? (
+                          <tr>
+                             <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                                Loading clients...
+                             </td>
+                          </tr>
+                       ) : filtered.length === 0 ? (
+                          <tr>
+                             <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                                No clients found matching "{search}".
+                             </td>
+                          </tr>
+                       ) : (
+                          filtered.map((c, idx) => (
+                             <tr key={idx} className="hover:bg-gray-50/50 transition-colors group">
+                                <td className="px-6 py-4">
+                                   <div className="font-bold text-jsBlack-900 text-base">{c.companyName}</div>
+                                   <div className="text-xs text-gray-400 font-medium inline-block bg-gray-100 px-2 py-0.5 rounded mt-1">
+                                      {c.industry}
+                                   </div>
+                                </td>
+                                <td className="px-6 py-4 space-y-1">
+                                   <div className="flex items-center gap-2 text-gray-600">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                      {c.email}
+                                   </div>
+                                   <div className="flex items-center gap-2 text-gray-600">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                      {c.whatsapp || c.contactNumber}
+                                   </div>
+                                </td>
+                                <td className="px-6 py-4 text-gray-600">
+                                   <div className="flex items-center gap-1">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                      {c.location}
+                                   </div>
+                                </td>
+                                <td className="px-6 py-4 text-right">
+                                   <Button variant="secondary" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                                   </Button>
+                                </td>
+                             </tr>
+                          ))
+                       )}
+                    </tbody>
+                 </table>
+              </div>
+           </CardContent>
+        </Card>
+      </div>
     </AppShell>
   );
 }
