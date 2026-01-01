@@ -17,7 +17,7 @@ type PricingRow = { name: string; price: number };
 type FormData = z.infer<typeof ClientCreateSchema>;
 
 export default function CreateClientPage() {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
   // Pricing Data
   const [industryPricing, setIndustryPricing] = useState<PricingRow[]>([]);
@@ -40,6 +40,7 @@ export default function CreateClientPage() {
       discountPercent: 0,
       contactPerson: "",
       password: "",
+      confirmPassword: "",
     },
 
     mode: "onChange",
@@ -51,6 +52,7 @@ export default function CreateClientPage() {
     handleSubmit,
     watch,
     trigger,
+    setError,
     formState: { errors },
   } = form;
 
@@ -106,38 +108,44 @@ export default function CreateClientPage() {
 
   const onNextStep = async () => {
     let fieldsToValidate: (keyof FormData)[] = [];
+    
+    // Step 1: Client Info
     if (step === 1) {
-      fieldsToValidate = ["companyName", "industry", "contactPerson", "contactNumber", "whatsapp", "email", "username", "password", "location"];
-    } else if (step === 2) {
+      fieldsToValidate = ["companyName", "industry", "contactPerson", "contactNumber", "whatsapp", "email", "location"];
+    } 
+    // Step 2: Account Setup
+    else if (step === 2) {
+      fieldsToValidate = ["username", "password", "confirmPassword"];
+    } 
+    // Step 3: Package
+    else if (step === 3) {
       fieldsToValidate = ["industries", "areas", "leadQty", "channels", "discountPercent"];
     }
 
     const isValid = await trigger(fieldsToValidate);
     if (!isValid) return;
 
-    // Custom Async Validation for Step 1
-    if (step === 1) {
+    // Custom Async Validation for Step 2 (Username)
+    if (step === 2) {
       const username = watch("username");
       if (username) {
          try {
            const res = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`);
            const data = await res.json();
            if (data.exists) {
-             form.setError("username", { type: "manual", message: "Username is already taken." });
+             setError("username", { type: "manual", message: "Username is already taken." });
              toast.error("Username already exists. Please choose another.");
              return; // Halt navigation
            }
          } catch (err) {
             console.error(err);
-            // Optional: fail open or closed? Let's warn but allow proceed if API fails? 
-            // Better to block or show generic error.
             toast.error("Failed to validate username availability.");
             return;
          }
       }
     }
 
-    setStep((s) => (s < 3 ? (s + 1 as 1 | 2 | 3) : s));
+    setStep((s) => (s < 4 ? (s + 1 as 1 | 2 | 3 | 4) : s));
   };
 
   const onSubmit = async (data: FormData) => {
@@ -157,7 +165,7 @@ export default function CreateClientPage() {
   };
 
   // --- UI HELPERS ---
-  const currentStepLabel = ["Client Info", "Package & Pricing", "Review"][step - 1];
+  const currentStepLabel = ["Client Info", "Account Setup", "Package & Pricing", "Review"][step - 1];
   
   return (
     <AppShell title="Create Client">
@@ -165,13 +173,13 @@ export default function CreateClientPage() {
         
         {/* STEPPER */}
         <div className="flex items-center justify-center w-full">
-          <div className="relative flex items-center justify-between w-full max-w-2xl">
+          <div className="relative flex items-center justify-between w-full max-w-3xl">
             {/* Connecting Line */}
             <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-1 bg-gray-200 -z-10 rounded"></div>
             <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-1 bg-jsOrange-500 -z-10 rounded transition-all duration-300"
-                 style={{ width: `${(step - 1) * 50}%` }}></div>
+                 style={{ width: `${(step - 1) * 33.33}%` }}></div>
 
-            {[1, 2, 3].map((s) => {
+            {[1, 2, 3, 4].map((s) => {
               const isActive = s <= step;
               return (
                 <div key={s} className="flex flex-col items-center gap-2 bg-white px-2">
@@ -181,7 +189,7 @@ export default function CreateClientPage() {
                     {s}
                   </div>
                   <span className={`text-xs font-medium ${isActive ? "text-jsBlack-900" : "text-gray-400"}`}>
-                    {["Client Details", "Lead Package", "Review & Save"][s - 1]}
+                    {["Client Info", "Account", "Package", "Review"][s - 1]}
                   </span>
                 </div>
               );
@@ -195,7 +203,7 @@ export default function CreateClientPage() {
               <div>
                 <h2 className="text-xl font-bold text-jsBlack-900">New Client Registration</h2>
                 <p className="text-gray-500 text-sm mt-1">
-                  Complete the form below to create a client account. Step {step} of 3: <span className="text-jsOrange-600 font-medium">{currentStepLabel}</span>
+                  Complete the form below to create a client account. Step {step} of 4: <span className="text-jsOrange-600 font-medium">{currentStepLabel}</span>
                 </p>
               </div>
             </div>
@@ -268,18 +276,6 @@ export default function CreateClientPage() {
                       {errors.email && <p className="text-red-500 text-xs font-medium">{errors.email.message}</p>}
                     </div>
 
-                    {/* Account Access */}
-                    <div className="space-y-2">
-                      <Label className="font-semibold">Username</Label>
-                      <Input {...register("username")} placeholder="Create a username" className="h-11" />
-                      {errors.username && <p className="text-red-500 text-xs font-medium">{errors.username.message}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="font-semibold">Password</Label>
-                      <Input type="password" {...register("password")} placeholder="••••••" className="h-11" />
-                      {errors.password && <p className="text-red-500 text-xs font-medium">{errors.password.message}</p>}
-                    </div>
-
                   </div>
                   
                   <div className="mt-8 flex justify-end">
@@ -290,8 +286,45 @@ export default function CreateClientPage() {
                 </div>
               )}
 
-              {/* STEP 2: Pricing & Details */}
+              {/* STEP 2: Account Setup */}
               {step === 2 && (
+                 <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                    <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
+                        <div className="text-center mb-4">
+                           <h3 className="text-lg font-bold text-gray-900">Platform Credentials</h3>
+                           <p className="text-sm text-gray-500">Create access for the client portal.</p>
+                        </div>
+                        
+                        <div className="space-y-2">
+                           <Label className="font-semibold">Username</Label>
+                           <Input {...register("username")} placeholder="Create a unique username" className="h-11" />
+                           {errors.username && <p className="text-red-500 text-xs font-medium">{errors.username.message}</p>}
+                        </div>
+
+                        <div className="space-y-2">
+                           <Label className="font-semibold">Password</Label>
+                           <Input type="password" {...register("password")} placeholder="••••••••" className="h-11" />
+                           {errors.password && <p className="text-red-500 text-xs font-medium">{errors.password.message}</p>}
+                        </div>
+
+                        <div className="space-y-2">
+                           <Label className="font-semibold">Confirm Password</Label>
+                           <Input type="password" {...register("confirmPassword")} placeholder="••••••••" className="h-11" />
+                           {errors.confirmPassword && <p className="text-red-500 text-xs font-medium">{errors.confirmPassword.message}</p>}
+                        </div>
+
+                    </div>
+                    <div className="mt-8 flex justify-between">
+                       <Button type="button" variant="secondary" onClick={() => setStep(1)} className="h-12 px-6">Back</Button>
+                       <Button type="button" onClick={onNextStep} className="bg-jsOrange-500 hover:bg-jsOrange-600 px-8 h-12 text-base shadow-md">
+                         Next Step &rarr;
+                       </Button>
+                    </div>
+                 </div>
+              )}
+
+              {/* STEP 3: Pricing & Details */}
+              {step === 3 && (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-300 space-y-8">
                   
                   {/* Multi-Select Grids */}
@@ -458,14 +491,14 @@ export default function CreateClientPage() {
                   </div>
 
                   <div className="flex justify-between pt-4">
-                    <Button type="button" variant="secondary" onClick={() => setStep(1)} className="h-12 px-6">Back</Button>
+                    <Button type="button" variant="secondary" onClick={() => setStep(2)} className="h-12 px-6">Back</Button>
                     <Button type="button" onClick={onNextStep} className="bg-jsOrange-500 hover:bg-jsOrange-600 h-12 px-8 text-base shadow-md">Next Step &rarr;</Button>
                   </div>
                 </div>
               )}
 
-              {/* STEP 3: Review */}
-              {step === 3 && (
+              {/* STEP 4: Review */}
+              {step === 4 && (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-300 space-y-6">
                   
                    <div className="rounded-xl border border-gray-200 overflow-hidden">
@@ -552,7 +585,7 @@ export default function CreateClientPage() {
                    </div>
 
                   <div className="flex justify-between pt-4">
-                    <Button type="button" variant="secondary" onClick={() => setStep(2)} className="h-12 px-6">Back</Button>
+                    <Button type="button" variant="secondary" onClick={() => setStep(3)} className="h-12 px-6">Back</Button>
                     <Button type="submit" className="bg-jsOrange-500 hover:bg-jsOrange-600 h-12 px-8 text-base shadow-lg w-40">Create Client</Button>
                   </div>
                 </div>
@@ -564,4 +597,3 @@ export default function CreateClientPage() {
     </AppShell>
   );
 }
-

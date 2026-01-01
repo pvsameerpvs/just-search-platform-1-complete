@@ -14,7 +14,8 @@ export const ClientCreateSchema = z.object({
   location: z.string().min(2),
   contactPerson: z.string().min(2),
   username: z.string().min(3, "Username must be at least 3 characters"),
-  password: z.string().min(6),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string(),
 
   // pricing step
   industries: z.array(z.string()).default([]),
@@ -22,4 +23,7 @@ export const ClientCreateSchema = z.object({
   leadQty: z.number().int().min(1).default(100),
   channels: z.array(z.enum(["whatsapp", "email"])).default(["whatsapp"]),
   discountPercent: z.number().min(0).max(100).default(0),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
 });
