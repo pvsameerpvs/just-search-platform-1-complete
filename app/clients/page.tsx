@@ -113,7 +113,9 @@ export default function ClientsPage() {
                           filtered.map((c, idx) => (
                              <tr key={c.client_id || idx} className="hover:bg-gray-50/50 transition-colors group">
                                 <td className="px-6 py-4">
-                                   <div className="font-bold text-jsBlack-900 text-base">{c.companyName}</div>
+                                   <Link href={`/clients/${c.client_id}`} className="block hover:underline decoration-jsOrange-500">
+                                      <div className="font-bold text-jsBlack-900 text-base">{c.companyName}</div>
+                                   </Link>
                                    <div className="text-xs text-gray-400 font-medium inline-block bg-gray-100 px-2 py-0.5 rounded mt-1">
                                       {c.industry}
                                    </div>
