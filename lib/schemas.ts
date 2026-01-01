@@ -13,6 +13,7 @@ export const ClientCreateSchema = z.object({
   email: z.string().email(),
   location: z.string().min(2),
   contactPerson: z.string().min(2),
+  username: z.string().min(3, "Username must be at least 3 characters"),
   password: z.string().min(6),
 
   // pricing step

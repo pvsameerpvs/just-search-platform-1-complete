@@ -31,6 +31,7 @@ export default function CreateClientPage() {
       contactNumber: "",
       whatsapp: "",
       email: "",
+      username: "",
       location: "",
       industries: [],
       areas: [],
@@ -40,6 +41,7 @@ export default function CreateClientPage() {
       contactPerson: "",
       password: "",
     },
+
     mode: "onChange",
   });
 
@@ -105,7 +107,7 @@ export default function CreateClientPage() {
   const onNextStep = async () => {
     let fieldsToValidate: (keyof FormData)[] = [];
     if (step === 1) {
-      fieldsToValidate = ["companyName", "industry", "contactPerson", "contactNumber", "whatsapp", "email", "password", "location"];
+      fieldsToValidate = ["companyName", "industry", "contactPerson", "contactNumber", "whatsapp", "email", "username", "password", "location"];
     } else if (step === 2) {
       fieldsToValidate = ["industries", "areas", "leadQty", "channels", "discountPercent"];
     }
@@ -173,6 +175,11 @@ export default function CreateClientPage() {
                   <Label>WhatsApp *</Label>
                   <Input {...register("whatsapp")} placeholder="+971..." />
                   {errors.whatsapp && <p className="text-red-500 text-xs">{errors.whatsapp.message}</p>}
+                </div>
+                <div>
+                  <Label>Username *</Label>
+                  <Input {...register("username")} placeholder="client_username" />
+                  {errors.username && <p className="text-red-500 text-xs">{errors.username.message}</p>}
                 </div>
                 <div>
                   <Label>Password *</Label>
@@ -342,6 +349,7 @@ export default function CreateClientPage() {
                     <div className="text-jsBlack-900">{watch("companyName")}</div>
                     <div className="text-sm font-medium">{watch("contactPerson")}</div>
                     <div>{watch("email")}</div>
+                    <div>Username: <b>{watch("username")}</b></div>
                     <div>{watch("whatsapp")}</div>
                     <div>{watch("location")}</div>
                   </div>

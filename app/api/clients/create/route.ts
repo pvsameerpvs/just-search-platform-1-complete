@@ -39,7 +39,7 @@ export async function POST(req: Request) {
   ]);
 
   // Create client credentials for Platform 2
-  const clientUsername = d.email.toLowerCase();
+  const clientUsername = d.username;
   const passwordHash = await bcrypt.hash(d.password, 10);
 
   await appendRow("Users!A:G", [
