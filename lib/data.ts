@@ -17,11 +17,12 @@ export type Client = {
   discountPercent: number;
   perLeadPrice: number;
   totalPrice: number;
+  status: string;
 };
 
 export async function getAllClients(): Promise<Client[]> {
-  // Read Columns A to O (15 columns)
-  const rows = await readRange("Clients!A2:O").catch(() => []);
+  // Read Columns A to P (16 columns)
+  const rows = await readRange("Clients!A2:P").catch(() => []);
   
   return rows.map((r) => ({
     client_id: (r?.[0] ?? "").toString(),
@@ -41,6 +42,7 @@ export async function getAllClients(): Promise<Client[]> {
     discountPercent: Number(r?.[12] ?? 0),
     perLeadPrice: Number(r?.[13] ?? 0),
     totalPrice: Number(r?.[14] ?? 0),
+    status: (r?.[15] ?? "Active").toString(),
   })).filter(c => c.companyName);
 }
 

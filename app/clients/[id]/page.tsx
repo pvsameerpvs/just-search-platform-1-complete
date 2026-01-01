@@ -24,10 +24,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                &larr; Back to Directory
              </Button>
           </Link>
-          <div className="flex items-center gap-4">
-             <div className="text-sm text-gray-500 font-mono">ID: {client.client_id}</div>
-             <DeleteClientButton id={client.client_id} name={client.companyName} />
-          </div>
+         
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
