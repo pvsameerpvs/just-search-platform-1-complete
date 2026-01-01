@@ -148,12 +148,13 @@ export default function CreateClientPage() {
     setStep((s) => (s < 4 ? (s + 1 as 1 | 2 | 3 | 4) : s));
   };
 
-  const onSubmit = async (data: FormData) => {
+  const saveClient = async (data: FormData, status: string) => {
     // Merge calculated totals
     const payload = {
       ...data,
       perLeadPrice: total.perLead,
       totalPrice: total.net,
+      status, 
     };
 
     const res = await fetch("/api/clients/create", {
@@ -163,13 +164,16 @@ export default function CreateClientPage() {
     });
 
     if (res.ok) {
-      toast.success("Client created successfully.");
+      toast.success(status === "Draft" ? "Client saved as Draft." : "Client created successfully.");
       window.location.href = "/clients";
     } else {
       const errorData = await res.json().catch(() => ({}));
       toast.error(errorData?.error ?? "Failed to create client");
     }
   };
+
+  const onSubmit = (data: FormData) => saveClient(data, "Active");
+
 
   // --- UI HELPERS ---
   const currentStepLabel = ["Client Info", "Account Setup", "Package & Pricing", "Review"][step - 1];
@@ -591,9 +595,19 @@ export default function CreateClientPage() {
                       </div>
                    </div>
 
-                  <div className="flex justify-between pt-4">
+                  <div className="flex justify-between pt-4 gap-4">
                     <Button type="button" variant="secondary" onClick={() => setStep(3)} className="h-12 px-6">Back</Button>
-                    <Button type="submit" className="bg-jsOrange-500 hover:bg-jsOrange-600 h-12 px-8 text-base shadow-lg w-40">Create Client</Button>
+                    <div className="flex gap-4">
+                       <Button 
+                          type="button" 
+                          variant="secondary" 
+                          onClick={handleSubmit((data) => saveClient(data, "Draft"))} 
+                          className="h-12 px-6 border-2 border-gray-200 hover:bg-gray-50 text-gray-600"
+                        >
+                          Save as Draft
+                       </Button>
+                       <Button type="submit" className="bg-jsOrange-500 hover:bg-jsOrange-600 h-12 px-8 text-base shadow-lg w-40">Create Client</Button>
+                    </div>
                   </div>
                 </div>
               )}

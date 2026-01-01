@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     d.discountPercent,
     d.perLeadPrice ?? 0,
     d.totalPrice ?? 0,
-    "Active",
+    body.status || "Active", // Use provided status or default to Active
   ]);
 
   // Create client credentials for Platform 2
