@@ -55,3 +55,37 @@ export async function updateRow(range: string, values: any[]) {
     requestBody: { values: [values] },
   });
 }
+
+export async function getSheetId(sheetName: string) {
+  const sheets = sheetsClient();
+  const res = await sheets.spreadsheets.get({
+    spreadsheetId: SHEET_ID(),
+  });
+  const sheet = res.data.sheets?.find((s) => s.properties?.title === sheetName);
+  return sheet?.properties?.sheetId;
+}
+
+export async function deleteRow(sheetName: string, rowIndex0Based: number) {
+  const sheets = sheetsClient();
+  const sheetId = await getSheetId(sheetName);
+  
+  if (sheetId === undefined) throw new Error(`Sheet ${sheetName} not found`);
+
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: SHEET_ID(),
+    requestBody: {
+      requests: [
+        {
+          deleteDimension: {
+            range: {
+              sheetId,
+              dimension: "ROWS",
+              startIndex: rowIndex0Based,
+              endIndex: rowIndex0Based + 1,
+            },
+          },
+        },
+      ],
+    },
+  });
+}

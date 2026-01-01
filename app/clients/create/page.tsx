@@ -149,10 +149,17 @@ export default function CreateClientPage() {
   };
 
   const onSubmit = async (data: FormData) => {
+    // Merge calculated totals
+    const payload = {
+      ...data,
+      perLeadPrice: total.perLead,
+      totalPrice: total.net,
+    };
+
     const res = await fetch("/api/clients/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
 
     if (res.ok) {

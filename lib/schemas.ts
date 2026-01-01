@@ -23,6 +23,10 @@ export const ClientCreateSchema = z.object({
   leadQty: z.number().int().min(1).default(100),
   channels: z.array(z.enum(["whatsapp", "email"])).default(["whatsapp"]),
   discountPercent: z.number().min(0).max(100).default(0),
+
+  // Calculated fields (optional/inferred)
+  perLeadPrice: z.number().optional(),
+  totalPrice: z.number().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
