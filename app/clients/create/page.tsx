@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { toast } from "sonner";
 import { AppShell } from "@/components/shell/app-shell";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -123,11 +124,11 @@ export default function CreateClientPage() {
     });
 
     if (res.ok) {
-      alert("Client created successfully.");
+      toast.success("Client created successfully.");
       window.location.href = "/clients";
     } else {
       const errorData = await res.json().catch(() => ({}));
-      alert(errorData?.error ?? "Failed to create client");
+      toast.error(errorData?.error ?? "Failed to create client");
     }
   };
 

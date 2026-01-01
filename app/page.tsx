@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,9 +25,12 @@ export default function LoginPage() {
     setLoading(false);
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data?.error ?? "Login failed");
+      const msg = data?.error ?? "Login failed";
+      setError(msg);
+      toast.error(msg);
       return;
     }
+    toast.success("Login successful");
     const data = await res.json();
     if (data.role === "admin") location.href = "/dashboard?role=admin";
     else location.href = "/dashboard?role=sales";
