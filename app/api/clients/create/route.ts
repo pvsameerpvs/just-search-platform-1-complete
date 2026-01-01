@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   const clientId = `C-${Date.now()}`;
   const createdAt = new Date().toISOString();
 
-  await appendRow("Clients!A:H", [
+  await appendRow("Clients!A:M", [
     clientId,
     d.companyName,
     d.industry,
@@ -31,16 +31,20 @@ export async function POST(req: Request) {
     d.email,
     d.location,
     createdAt,
+    d.industries.join(", "),
+    d.areas.join(", "),
+    d.leadQty,
+    d.channels.join(", "),
+    d.discountPercent,
   ]);
 
-  // Optional: auto-create client credentials for Platform 2
+  // Create client credentials for Platform 2
   const clientUsername = d.email.toLowerCase();
-  const tempPassword = "Client@1234"; // you can generate dynamically
-  const passwordHash = await bcrypt.hash(tempPassword, 10);
+  const passwordHash = await bcrypt.hash(d.password, 10);
 
   await appendRow("Users!A:G", [
     `U-${Date.now()}`,
-    d.companyName,
+    d.contactPerson,
     d.email,
     clientUsername,
     passwordHash,
@@ -60,7 +64,6 @@ export async function POST(req: Request) {
     ok: true,
     clientId,
     clientUsername,
-    tempPassword,
     message: "Client created. Share credentials with client.",
   });
 }

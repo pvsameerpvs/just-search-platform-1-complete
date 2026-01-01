@@ -36,6 +36,8 @@ export default function CreateClientPage() {
       leadQty: 100,
       channels: ["whatsapp"],
       discountPercent: 0,
+      contactPerson: "",
+      password: "",
     },
     mode: "onChange",
   });
@@ -102,7 +104,7 @@ export default function CreateClientPage() {
   const onNextStep = async () => {
     let fieldsToValidate: (keyof FormData)[] = [];
     if (step === 1) {
-      fieldsToValidate = ["companyName", "industry", "contactNumber", "whatsapp", "email", "location"];
+      fieldsToValidate = ["companyName", "industry", "contactPerson", "contactNumber", "whatsapp", "email", "password", "location"];
     } else if (step === 2) {
       fieldsToValidate = ["industries", "areas", "leadQty", "channels", "discountPercent"];
     }
@@ -151,6 +153,11 @@ export default function CreateClientPage() {
                   <Input {...register("industry")} placeholder="Select Industry" />
                   {errors.industry && <p className="text-red-500 text-xs">{errors.industry.message}</p>}
                 </div>
+                <div className="md:col-span-2">
+                  <Label>Contact Person *</Label>
+                  <Input {...register("contactPerson")} placeholder="Full Name" />
+                  {errors.contactPerson && <p className="text-red-500 text-xs">{errors.contactPerson.message}</p>}
+                </div>
                 <div>
                   <Label>Contact Number *</Label>
                   <Input {...register("contactNumber")} placeholder="+971..." />
@@ -165,6 +172,11 @@ export default function CreateClientPage() {
                   <Label>WhatsApp *</Label>
                   <Input {...register("whatsapp")} placeholder="+971..." />
                   {errors.whatsapp && <p className="text-red-500 text-xs">{errors.whatsapp.message}</p>}
+                </div>
+                <div>
+                  <Label>Password *</Label>
+                  <Input type="password" {...register("password")} placeholder="******" />
+                  {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
                 </div>
                 <div>
                   <Label>Your Location *</Label>
@@ -327,6 +339,7 @@ export default function CreateClientPage() {
                   <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
                     <div className="text-gray-500">Client</div>
                     <div className="text-jsBlack-900">{watch("companyName")}</div>
+                    <div className="text-sm font-medium">{watch("contactPerson")}</div>
                     <div>{watch("email")}</div>
                     <div>{watch("whatsapp")}</div>
                     <div>{watch("location")}</div>

@@ -12,6 +12,8 @@ export const ClientCreateSchema = z.object({
   whatsapp: z.string().min(5),
   email: z.string().email(),
   location: z.string().min(2),
+  contactPerson: z.string().min(2),
+  password: z.string().min(6),
 
   // pricing step
   industries: z.array(z.string()).default([]),

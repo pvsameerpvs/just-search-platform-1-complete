@@ -24,6 +24,11 @@ Stores client information.
 - `F`: `email`
 - `G`: `location`
 - `H`: `createdAt`
+- `I`: `industries`
+- `J`: `areas`
+- `K`: `leadQty`
+- `L`: `channels`
+- `M`: `discountPercent`
 
 ## 3. Tab Name: `Invoices`
 Stores simple invoice records.
