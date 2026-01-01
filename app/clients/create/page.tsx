@@ -153,7 +153,15 @@ export default function CreateClientPage() {
                 </div>
                 <div className="md:col-span-2">
                   <Label>Industry *</Label>
-                  <Input {...register("industry")} placeholder="Select Industry" />
+                  <select
+                    {...register("industry")}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="">Select Industry</option>
+                    {industryPricing.map((item) => (
+                      <option key={item.name} value={item.name}>{item.name}</option>
+                    ))}
+                  </select>
                   {errors.industry && <p className="text-red-500 text-xs">{errors.industry.message}</p>}
                 </div>
                 <div className="md:col-span-2">
@@ -187,8 +195,16 @@ export default function CreateClientPage() {
                   {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
                 </div>
                 <div>
-                  <Label>Your Location *</Label>
-                  <Input {...register("location")} placeholder="Dubai, UAE" />
+                  <Label>Area *</Label>
+                  <select
+                    {...register("location")}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="">Select Area</option>
+                    {areaPricing.map((item) => (
+                      <option key={item.name} value={item.name}>{item.name}</option>
+                    ))}
+                  </select>
                   {errors.location && <p className="text-red-500 text-xs">{errors.location.message}</p>}
                 </div>
                 <div className="md:col-span-2 flex justify-end">
