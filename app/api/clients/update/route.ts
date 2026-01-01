@@ -22,7 +22,9 @@ export async function PUT(req: Request) {
       location,
       leadQty,
       perLeadPrice,
-      totalPrice
+      totalPrice,
+      industries, // New
+      areas       // New
     } = body;
 
     if (!clientId) {
@@ -43,8 +45,7 @@ export async function PUT(req: Request) {
     // A=0, B=1, ...
     const _clientId = existing[0]; // Keep original ID
     const _createdAt = existing[7];
-    const _industries = existing[8];
-    const _areas = existing[9];
+    // _industries and _areas are now updated via body
     const _channels = existing[11];
     const _discount = existing[12];
     const _status = existing[15];
@@ -59,8 +60,8 @@ export async function PUT(req: Request) {
       email,                      // F: email
       location,                   // G: location
       _createdAt,                 // H: createdAt
-      _industries,                // I: industries
-      _areas,                     // J: areas
+      industries,                 // I: industries (Updated)
+      areas,                      // J: areas (Updated)
       leadQty,                    // K: leadQty
       _channels,                  // L: channels
       _discount,                  // M: discountPercent

@@ -24,7 +24,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                &larr; Back to Directory
              </Button>
           </Link>
-         
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
