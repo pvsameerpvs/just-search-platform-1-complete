@@ -113,9 +113,31 @@ export default function CreateClientPage() {
     }
 
     const isValid = await trigger(fieldsToValidate);
-    if (isValid) {
-      setStep((s) => (s < 3 ? (s + 1 as 1 | 2 | 3) : s));
+    if (!isValid) return;
+
+    // Custom Async Validation for Step 1
+    if (step === 1) {
+      const username = watch("username");
+      if (username) {
+         try {
+           const res = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`);
+           const data = await res.json();
+           if (data.exists) {
+             form.setError("username", { type: "manual", message: "Username is already taken." });
+             toast.error("Username already exists. Please choose another.");
+             return; // Halt navigation
+           }
+         } catch (err) {
+            console.error(err);
+            // Optional: fail open or closed? Let's warn but allow proceed if API fails? 
+            // Better to block or show generic error.
+            toast.error("Failed to validate username availability.");
+            return;
+         }
+      }
     }
+
+    setStep((s) => (s < 3 ? (s + 1 as 1 | 2 | 3) : s));
   };
 
   const onSubmit = async (data: FormData) => {
