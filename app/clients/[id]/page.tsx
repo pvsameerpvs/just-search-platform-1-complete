@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/shell/app-shell";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { DeleteClientButton } from "@/components/clients/DeleteClientButton";
 import { getClientById } from "@/lib/data";
 
 export default async function ClientDetailPage({ params }: { params: { id: string } }) {
@@ -23,7 +24,10 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                &larr; Back to Directory
              </Button>
           </Link>
-          <div className="text-sm text-gray-500 font-mono">ID: {client.client_id}</div>
+          <div className="flex items-center gap-4">
+             <div className="text-sm text-gray-500 font-mono">ID: {client.client_id}</div>
+             <DeleteClientButton id={client.client_id} name={client.companyName} />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -119,7 +123,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                  <div>
                     <h3 className="font-bold text-gray-900 mb-3 text-sm uppercase">Target Industries</h3>
                     <div className="flex flex-wrap gap-2">
-                       {client.industries.split(",").map((i, idx) => (
+                       {client.industries.split(",").map((i: string, idx: number) => (
                           <span key={idx} className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-medium border border-blue-100">
                              {i.trim()}
                           </span>
@@ -129,7 +133,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                  <div>
                     <h3 className="font-bold text-gray-900 mb-3 text-sm uppercase">Target Areas</h3>
                      <div className="flex flex-wrap gap-2">
-                       {client.areas.split(",").map((a, idx) => (
+                       {client.areas.split(",").map((a: string, idx: number) => (
                           <span key={idx} className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-medium border border-green-100">
                              {a.trim()}
                           </span>
