@@ -18,6 +18,7 @@ type FormData = z.infer<typeof ClientCreateSchema>;
 
 export default function CreateClientPage() {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Pricing Data
   const [industryPricing, setIndustryPricing] = useState<PricingRow[]>([]);
@@ -108,7 +109,10 @@ export default function CreateClientPage() {
   }, [industryPricing, areaPricing, wIndustries, wAreas, wLeadQty, wChannels, wDiscountPercent]);
 
   const onNextStep = async () => {
-    let fieldsToValidate: (keyof FormData)[] = [];
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      let fieldsToValidate: (keyof FormData)[] = [];
     
     // Step 1: Client Info
     if (step === 1) {
@@ -146,11 +150,17 @@ export default function CreateClientPage() {
       }
     }
 
-    setStep((s) => (s < 4 ? (s + 1 as 1 | 2 | 3 | 4) : s));
+      setStep((s) => (s < 4 ? (s + 1 as 1 | 2 | 3 | 4) : s));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const saveClient = async (data: FormData, status: string) => {
-    // Merge calculated totals
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      // Merge calculated totals
     const payload = {
       ...data,
       perLeadPrice: total.perLead,
@@ -170,6 +180,10 @@ export default function CreateClientPage() {
     } else {
       const errorData = await res.json().catch(() => ({}));
       toast.error(errorData?.error ?? "Failed to create client");
+    }
+    } catch (e) {
+      toast.error("An error occurred.");
+      setIsSubmitting(false);
     }
   };
 
@@ -291,8 +305,8 @@ export default function CreateClientPage() {
                   </div>
                   
                   <div className="mt-8 flex justify-end">
-                    <Button type="button" onClick={onNextStep} className="bg-jsOrange-500 hover:bg-jsOrange-600 px-8 h-12 text-base shadow-md">
-                      Next Step &rarr;
+                    <Button type="button" onClick={onNextStep} disabled={isSubmitting} className="bg-jsOrange-500 hover:bg-jsOrange-600 px-8 h-12 text-base shadow-md">
+                      {isSubmitting ? "Validating..." : "Next Step \u2192"}
                     </Button>
                   </div>
                 </div>
@@ -328,8 +342,8 @@ export default function CreateClientPage() {
                     </div>
                     <div className="mt-8 flex justify-between">
                        <Button type="button" variant="secondary" onClick={() => setStep(1)} className="h-12 px-6">Back</Button>
-                       <Button type="button" onClick={onNextStep} className="bg-jsOrange-500 hover:bg-jsOrange-600 px-8 h-12 text-base shadow-md">
-                         Next Step &rarr;
+                       <Button type="button" onClick={onNextStep} disabled={isSubmitting} className="bg-jsOrange-500 hover:bg-jsOrange-600 px-8 h-12 text-base shadow-md">
+                         {isSubmitting ? "Checking..." : "Next Step \u2192"}
                        </Button>
                     </div>
                  </div>
@@ -508,7 +522,9 @@ export default function CreateClientPage() {
 
                   <div className="flex justify-between pt-4">
                     <Button type="button" variant="secondary" onClick={() => setStep(2)} className="h-12 px-6">Back</Button>
-                    <Button type="button" onClick={onNextStep} className="bg-jsOrange-500 hover:bg-jsOrange-600 h-12 px-8 text-base shadow-md">Next Step &rarr;</Button>
+                    <Button type="button" onClick={onNextStep} disabled={isSubmitting} className="bg-jsOrange-500 hover:bg-jsOrange-600 h-12 px-8 text-base shadow-md">
+                      {isSubmitting ? "Processing..." : "Next Step \u2192"}
+                    </Button>
                   </div>
                 </div>
               )}
@@ -605,13 +621,15 @@ export default function CreateClientPage() {
                     <div className="flex gap-4">
                        <Button 
                           type="button" 
-                          variant="secondary" 
-                          onClick={handleSubmit((data) => saveClient(data, "Draft"))} 
-                          className="h-12 px-6 border-2 border-gray-200 hover:bg-gray-50 text-gray-600"
-                        >
-                          Save as Draft
-                       </Button>
-                       <Button type="submit" className="bg-jsOrange-500 hover:bg-jsOrange-600 h-12 px-8 text-base shadow-lg w-40">Create Client</Button>
+                          variant="secondary"                           onClick={handleSubmit((data) => saveClient(data, "Draft"))} 
+                           disabled={isSubmitting}
+                           className="h-12 px-6 border-2 border-gray-200 hover:bg-gray-50 text-gray-600"
+                         >
+                           {isSubmitting ? "Saving..." : "Save as Draft"}
+                        </Button>
+                        <Button type="submit" disabled={isSubmitting} className="bg-jsOrange-500 hover:bg-jsOrange-600 h-12 px-8 text-base shadow-lg w-40">
+                          {isSubmitting ? "Creating..." : "Create Client"}
+                        </Button>
                     </div>
                   </div>
                 </div>
