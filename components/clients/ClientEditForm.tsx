@@ -65,6 +65,8 @@ export function ClientEditForm({ client }: { client: Client }) {
     },
   });
 
+  const wIndustry = form.watch("industry");
+
   // Fetch Pricing Data
   useEffect(() => {
     Promise.all([
@@ -183,32 +185,35 @@ export function ClientEditForm({ client }: { client: Client }) {
                  <Controller
                     control={form.control}
                     name="industries"
-                    render={({ field }) => (
+                    render={({ field }) => {
+                       return (
                        <>
-                          {industryPricing.map((it) => {
-                             const isSelected = field.value.includes(it.name);
-                             return (
-                                <label key={it.name} className={`flex items-center justify-between p-2 rounded border cursor-pointer hover:bg-white hover:shadow-sm transition-all ${isSelected ? "bg-white border-jsOrange-500 ring-1 ring-jsOrange-500" : "bg-transparent border-gray-200"}`}>
-                                   <div className="flex items-center gap-2">
-                                      <input
-                                         type="checkbox"
-                                         className="rounded text-jsOrange-600 focus:ring-jsOrange-500"
-                                         checked={isSelected}
-                                         onChange={(e) => {
-                                            const newVal = e.target.checked
-                                               ? [...field.value, it.name]
-                                               : field.value.filter((x) => x !== it.name);
-                                            field.onChange(newVal);
-                                         }}
-                                      />
-                                      <span className="text-sm">{it.name}</span>
-                                   </div>
-                                   <span className="text-xs text-gray-400">AED {it.price}</span>
-                                </label>
-                             );
-                          })}
+                              {industryPricing.map((it) => {
+                                 const isSelected = field.value.includes(it.name);
+                                 const isPrimary = it.name === wIndustry;
+                                 return (
+                                    <label key={it.name} className={`flex items-center justify-between p-2 rounded border transition-all ${isPrimary ? "bg-gray-100 border-gray-200 cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-white hover:shadow-sm " + (isSelected ? "bg-white border-jsOrange-500 ring-1 ring-jsOrange-500" : "bg-transparent border-gray-200")}`}>
+                                       <div className="flex items-center gap-2">
+                                          <input
+                                             type="checkbox"
+                                             className="rounded text-jsOrange-600 focus:ring-jsOrange-500 disabled:opacity-50"
+                                             checked={isSelected}
+                                             disabled={isPrimary}
+                                             onChange={(e) => {
+                                                const newVal = e.target.checked
+                                                   ? [...field.value, it.name]
+                                                   : field.value.filter((x) => x !== it.name);
+                                                field.onChange(newVal);
+                                             }}
+                                          />
+                                          <span className="text-sm">{it.name} {isPrimary && "(Primary)"}</span>
+                                       </div>
+                                       <span className="text-xs text-gray-400">AED {it.price}</span>
+                                    </label>
+                                 );
+                              })}
                        </>
-                    )}
+                    )}}
                  />
               </div>
            </div>
