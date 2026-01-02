@@ -72,6 +72,7 @@ export default function CreateClientPage() {
   }, []);
 
   // Watched Values for Pricing Calculation
+  const wIndustry = watch("industry");
   const wIndustries = watch("industries");
   const wAreas = watch("areas");
   const wLeadQty = watch("leadQty");
@@ -351,16 +352,20 @@ export default function CreateClientPage() {
                             <>
                               {industryPricing.map((it) => {
                                 const isSelected = field.value.includes(it.name);
+                                const isPrimary = it.name === wIndustry;
                                 return (
                                   <label key={it.name} 
-                                    className={`flex items-center justify-between p-3 rounded-md border cursor-pointer transition-all hover:border-jsOrange-300 ${
-                                      isSelected ? "border-jsOrange-500 bg-orange-50" : "border-gray-200 bg-white"
+                                    className={`flex items-center justify-between p-3 rounded-md border transition-all ${
+                                      isPrimary 
+                                        ? "bg-gray-100 border-gray-200 cursor-not-allowed opacity-60" 
+                                        : "cursor-pointer hover:border-jsOrange-300 " + (isSelected ? "border-jsOrange-500 bg-orange-50" : "border-gray-200 bg-white")
                                     }`}>
                                     <div className="flex items-center gap-3">
                                       <input
                                         type="checkbox"
-                                        className="w-4 h-4 text-jsOrange-600 rounded focus:ring-jsOrange-500"
+                                        className="w-4 h-4 text-jsOrange-600 rounded focus:ring-jsOrange-500 disabled:opacity-50"
                                         checked={isSelected}
+                                        disabled={isPrimary}
                                         onChange={(e) => {
                                           const newVal = e.target.checked
                                             ? [...field.value, it.name]
@@ -368,7 +373,7 @@ export default function CreateClientPage() {
                                           field.onChange(newVal);
                                         }}
                                       />
-                                      <span className="font-medium text-sm">{it.name}</span>
+                                      <span className="font-medium text-sm">{it.name} {isPrimary && "(Primary)"}</span>
                                     </div>
                                     <span className="text-xs font-semibold bg-gray-100 px-2 py-1 rounded text-gray-600">AED {it.price.toFixed(0)}</span>
                                   </label>
