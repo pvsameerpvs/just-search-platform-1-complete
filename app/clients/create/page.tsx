@@ -128,7 +128,11 @@ export default function CreateClientPage() {
     }
 
     const isValid = await trigger(fieldsToValidate);
-    if (!isValid) return;
+    if (!isValid) {
+      toast.error("Please check the form for errors.");
+      setIsSubmitting(false); // Reset state if validation fails
+      return;
+    }
 
     // Custom Async Validation for Step 2 (Username)
     if (step === 2) {
@@ -141,6 +145,8 @@ export default function CreateClientPage() {
              setError("username", { type: "manual", message: "Username is already taken." });
              toast.error("Username already exists. Please choose another.");
              return; // Halt navigation
+           } else {
+             toast.success("Username is available.");
            }
          } catch (err) {
             console.error(err);
@@ -159,6 +165,8 @@ export default function CreateClientPage() {
   const saveClient = async (data: FormData, status: string) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
+    const toastId = toast.loading(status === "Draft" ? "Saving draft..." : "Creating client...");
+
     try {
       // Merge calculated totals
     const payload = {
@@ -175,14 +183,15 @@ export default function CreateClientPage() {
     });
 
     if (res.ok) {
-      toast.success(status === "Draft" ? "Client saved as Draft." : "Client created successfully.");
+      toast.success(status === "Draft" ? "Client saved as Draft." : "Client created successfully.", { id: toastId });
       window.location.href = "/clients";
     } else {
       const errorData = await res.json().catch(() => ({}));
-      toast.error(errorData?.error ?? "Failed to create client");
+      toast.error(errorData?.error ?? "Failed to create client", { id: toastId });
+      setIsSubmitting(false); // Allow retry
     }
     } catch (e) {
-      toast.error("An error occurred.");
+      toast.error("An error occurred.", { id: toastId });
       setIsSubmitting(false);
     }
   };
