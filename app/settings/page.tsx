@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppShell } from "@/components/shell/app-shell";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<"account" | "security" | "system">("account");
+  const [activeTab, setActiveTab] = useState<"security" | "system">("security");
 
   return (
     <AppShell title="Settings">
@@ -18,14 +18,6 @@ export default function SettingsPage() {
         {/* Sidebar Navigation */}
         <div className="w-full md:w-64 flex-shrink-0 space-y-2">
             <h3 className="font-bold text-lg px-4 mb-4 text-jsBlack-900">Preferences</h3>
-            <button
-               onClick={() => setActiveTab("account")}
-               className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                  activeTab === "account" ? "bg-jsOrange-50 text-jsOrange-700" : "text-gray-600 hover:bg-gray-100"
-               }`}
-            >
-               Account Profile
-            </button>
             <button
                onClick={() => setActiveTab("security")}
                className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
@@ -46,35 +38,6 @@ export default function SettingsPage() {
 
         {/* Main Content Area */}
         <div className="flex-1">
-           {activeTab === "account" && (
-              <Card>
-                 <CardHeader className="border-b pb-4">
-                    <h2 className="text-xl font-bold text-jsBlack-900">Account Profile</h2>
-                    <p className="text-sm text-gray-500">Manage your personal information</p>
-                 </CardHeader>
-                 <CardContent className="space-y-6 pt-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                       <div className="space-y-2">
-                          <Label>Full Name</Label>
-                          <Input defaultValue="Admin User" />
-                       </div>
-                       <div className="space-y-2">
-                          <Label>Job Title</Label>
-                          <Input defaultValue="System Administrator" />
-                       </div>
-                       <div className="space-y-2 md:col-span-2">
-                          <Label>Email Address</Label>
-                          <Input defaultValue="admin@justsearch.ae" disabled className="bg-gray-50" />
-                          <p className="text-xs text-gray-500">Contact IT support to change email.</p>
-                       </div>
-                    </div>
-                    <div className="flex justify-end pt-4">
-                       <Button onClick={() => toast.success("Profile updated successfully")}>Save Changes</Button>
-                    </div>
-                 </CardContent>
-              </Card>
-           )}
-
            {activeTab === "security" && (
               <Card>
                  <CardHeader className="border-b pb-4">
