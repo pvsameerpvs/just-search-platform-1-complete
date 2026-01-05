@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
 
 const items = [
   { href: "/dashboard", label: "Dashboard" },
@@ -13,6 +14,24 @@ const items = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/user/me")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user?.role === "admin") {
+          setIsAdmin(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const menuItems = [
+    ...items,
+    ...(isAdmin ? [{ href: "/platform-users", label: "Platform Users" }] : []),
+  ];
+
   return (
     <aside className="w-64 shrink-0 flex flex-col border-r border-gray-100 bg-white h-screen sticky top-0 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.05)] z-40">
       
@@ -31,7 +50,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-4 space-y-1">
-        {items.map((it) => {
+        {menuItems.map((it) => {
            const isActive = pathname.startsWith(it.href);
            return (
              <Link

@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { toast } from "sonner";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -60,7 +62,7 @@ export default function LoginPage() {
               {loading ? "Logging in..." : "Login"}
             </Button>
 
-            <div className="text-xs text-gray-400 text-center pt-2">
+            <div className="text-xs text-gray-400 text-center pt-4">
               © Just Search Workspace • Privacy Policy • Terms
             </div>
           </form>

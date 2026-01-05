@@ -4,8 +4,8 @@ import { LoginSchema } from "@/lib/schemas";
 import { readRange } from "@/lib/googleSheets";
 import { signSession } from "@/lib/auth";
 
-// Users sheet columns:
-// A user_id | B name | C email | D username | E password_hash | F role | G status
+// Platform_Users sheet columns:
+// A: staff_id | B: staff_name | C: staff_email | D: staff_username | E: staff_password_hash | F: staff_role
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const parsed = LoginSchema.safeParse(body);
@@ -33,9 +33,10 @@ export async function POST(req: Request) {
     return res;
   }
 
-  const rows = await readRange("Users!A2:G");
+  const rows = await readRange("Platform_Users!A2:F");
 
   const userRow = rows.find((r) => {
+    // C: staff_email (index 2), D: staff_username (index 3)
     const email = (r?.[2] ?? "").toString().toLowerCase();
     const uname = (r?.[3] ?? "").toString().toLowerCase();
     const input = username.toLowerCase();
@@ -46,22 +47,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   }
 
-  const status = (userRow?.[6] ?? "active").toString().toLowerCase();
-  if (status !== "active") {
-    return NextResponse.json({ error: "User is inactive" }, { status: 403 });
-  }
-
+  // E: staff_password_hash (index 4)
   const passwordHash = (userRow?.[4] ?? "").toString();
   const ok = await bcrypt.compare(password, passwordHash).catch(() => false);
   if (!ok) {
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   }
 
+  // Map Platform_Users columns to Session User Object
   const user = {
-    user_id: (userRow?.[0] ?? "").toString(),
-    name: (userRow?.[1] ?? "").toString(),
-    email: (userRow?.[2] ?? "").toString(),
-    role: (userRow?.[5] ?? "sales").toString() as "admin" | "sales",
+    user_id: (userRow?.[0] ?? "").toString(), // A: staff_id
+    name: (userRow?.[1] ?? "").toString(),    // B: staff_name
+    email: (userRow?.[2] ?? "").toString(),   // C: staff_email
+    role: (userRow?.[5] ?? "sales").toString() as "admin" | "sales", // F: staff_role
   };
 
   const token = signSession(user);

@@ -3,14 +3,14 @@
 To run the application, you need to set up a Google Sheet with the following Tabs (Sheets) and Headers.
 
 ## 1. Tab Name: `Users`
-Used for authentication.
+Used for CLIENT authentication (Legacy/Client Portal).
 **Columns:**
 - `A`: `user_id` (e.g., U-12345678)
-- `B`: `name` (e.g., Admin User)
-- `C`: `email` (e.g., admin@justsearch.ae)
-- `D`: `username` (e.g., admin)
+- `B`: `name` (e.g., Client Name)
+- `C`: `email` (e.g., client@example.com)
+- `D`: `username` (e.g., client_user)
 - `E`: `password_hash` (bcrypt hash string)
-- `F`: `role` (e.g., admin, sales, client)
+- `F`: `role` (e.g., client)
 - `G`: `status` (e.g., active)
 
 ## 2. Tab Name: `Clients`
@@ -59,3 +59,14 @@ Multiplier configuration for areas.
 **Columns:**
 - `A`: `Name` (e.g., Dubai, Abu Dhabi)
 - `B`: `Price` (Multiplier, e.g., 1.5, 1.0)
+
+## 7. Tab Name: `Platform_Users`
+**NEW:** Used for INTERNAL STAFF Authentication (Admin & Sales).
+**Columns:**
+- `A`: `staff_id` (Unique ID, e.g., STF-12345)
+- `B`: `staff_name` (Full Name)
+- `C`: `staff_email` (Login Email)
+- `D`: `staff_username` (Login Username)
+- `E`: `staff_password_hash` (Bcrypt Hash)
+- `F`: `staff_role` (ENUM: `admin` or `sales`)
+- `G`: `staff_contact` (e.g., +971500000000)

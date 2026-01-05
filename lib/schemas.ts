@@ -5,6 +5,21 @@ export const LoginSchema = z.object({
   password: z.string().min(4),
 });
 
+export const StaffRegisterSchema = z.object({
+  name: z.string().min(2, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  contactNumber: z.string().min(5, "Contact number is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string(),
+  role: z.enum(["admin", "sales"], {
+    errorMap: () => ({ message: "Role must be either 'admin' or 'sales'" }),
+  }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
 export const ClientCreateSchema = z.object({
   companyName: z.string().min(2),
   industry: z.string().min(2),
